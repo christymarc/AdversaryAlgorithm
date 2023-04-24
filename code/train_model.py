@@ -14,7 +14,9 @@ def train_model(name, datasize, max_size):
     model_name = f"model{name}"
     
     # if model already exists, don't override
-    model_file = os.path.join("./models", model_name + ".pth")
+    models_folder = "./models"
+    model_name_ext = model_name + ".pkl"
+    model_file = os.path.join(models_folder, model_name_ext)
     if (os.path.exists(model_file)):
         return
     
@@ -32,7 +34,9 @@ def train_model(name, datasize, max_size):
     
     # training
     
-    learn = text_classifier_learner(dls, AWD_LSTM, drop_mult=0.5, metrics=accuracy, cbs=[CSVLogger(append=True)])
+    log_name = f"log{name}.csv"
+    
+    learn = text_classifier_learner(dls, AWD_LSTM, drop_mult=0.5, metrics=accuracy, path=models_folder, cbs=CSVLogger(fname=log_name, append=True))
 
     print(f"{model_name} has begun training")
     
@@ -49,13 +53,14 @@ def train_model(name, datasize, max_size):
     
     # saving model and training log
     
-    learn.save(model_name)
+    # remove csvlogger before exporting to avoid pickling bug with fastai v2
+    learn.remove_cb(CSVLogger)
+    learn.export(model_name_ext)
     
-    default_name = "history.csv"
-    log_name = f"log{name}.csv"
+    # move logs
+    log_name = os.path.join(models_folder, f"log{name}.csv")
     log_path = "../logs"
-    
-    os.rename(default_name, log_name)
+
     shutil.move(log_name, log_path)
     
     print(f"{model_name} trained")
