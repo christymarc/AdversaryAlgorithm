@@ -1,10 +1,20 @@
 from fastai.text.all import *
 
+import torch
+torch.cuda.set_device(2)
+
 def narrow_down(pos_path, neg_path, models_path):
     text = []
     category = []
     sentiment = 'pos'
     count = 0
+    learners = []
+    for model in os.listdir(models_path):
+        learner_path = os.path.join(models_path, model)
+        if learner_path == "models/.ipynb_checkpoints" or ".csv" in learner_path: # accounting for weird fastai thing
+            continue
+        l = load_learner(learner_path, cpu=False)
+        learners.append(l)
     for path in [pos_path, neg_path]:
         if path == neg_path:
             sentiment = 'neg'
@@ -17,11 +27,7 @@ def narrow_down(pos_path, neg_path, models_path):
                     line = fd.readlines()[0] # ensure text isn't added to text as a list
                     i = 0
                     correct = 0
-                    for model in os.listdir(models_path):
-                        learner_path = os.path.join(models_path, model)
-                        if learner_path == "models/.ipynb_checkpoints" or ".csv" in learner_path: # accounting for weird fastai thing
-                            continue
-                        learner = load_learner(learner_path, cpu=False)
+                    for learner in learners:
                         if (learner.predict(line)[0] == sentiment): 
                             correct += 1
                         i += 1
@@ -39,13 +45,13 @@ def narrow_down(pos_path, neg_path, models_path):
     d = {"text":text, "category":category}
     df = pd.DataFrame(data=d)
     
-    pathfile = "/data/examples1000"
+    pathfile = "../data/examples1000.csv"
     df.to_csv(pathfile, index=False)
           
         
 def main():
-    pos_path = "../data/imdb2500/test/pos"
-    neg_path = "../data/imdb2500/test/neg"
+    pos_path = "../data/imdb10000/test/pos"
+    neg_path = "../data/imdb10000/test/neg"
     models_path = "models"
     narrow_down(pos_path, neg_path, models_path)
 
