@@ -1,6 +1,6 @@
 # CS159 Final Project
 
-Final project for NLP Spring 2023. Implementing and evaluating the PWWS algorithm as a method of adversarial example generation for DNN sentiment analysis models.
+Final project for NLP Spring 2023. Implementing and evaluating the PWWS algorithm as a method of adversarial example generation for Deep Neural Networks.
 
 ## Notes
 PWWS algorithm inspired by this paper [Generating Natural Language Adversarial Examples through Probability Weighted Word Saliency](https://aclanthology.org/P19-1103.pdf) by Ren, et al. DNNs trained and implemented through fastai, [the IMDB movie review dataset](https://ai.stanford.edu/~amaas/data/sentiment/).
